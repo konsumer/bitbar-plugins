@@ -15,4 +15,4 @@ You can set `GITLAB_KEY` like this:
 launchctl setenv GITLAB_KEY <YOURS>
 ```
 
-You can get your token under your face (top-left) / Settings / Access Tokens
+You can get your token under your face (top-right) / Settings / Access Tokens
