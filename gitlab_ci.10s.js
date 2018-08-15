@@ -97,6 +97,6 @@ const run = async () => {
     if (pipe) {
       return `${pipe.icon} ${project.name}`
     }
-  }).join(' - '))
+  }).join(' · '))
 }
 run()
