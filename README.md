@@ -7,7 +7,7 @@ These are [Bitbar](https://github.com/matryer/bitbar) plugins I use. They have n
 
 Everything is configured with environment varianbles, which can be tricky in OSX app-space.
 
-You can set OSX environment-variables with [these instructions](https://apple.stackexchange.com/questions/267025/set-environment-variable-for-applications-on-startup)
+You can set OSX environment-variables with [these instructions](http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/)
 
 You can also use `launchctl setenv NAME VALUE` to set them one-off.
 
