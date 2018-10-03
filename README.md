@@ -7,12 +7,8 @@ These are [Bitbar](https://github.com/matryer/bitbar) plugins I use. They have n
 
 ## gitlab_ci.10s.js
 
-If you have `GITLAB_KEY` set in your environment, you can watch all your starred repos on gitlab for CI status.
+Watch one Gitlab project's CI status. 
 
-You can set `GITLAB_KEY` like this:
+You need to configure `GITLAB_API_KEY` and `GITLAB_PROJECT` at top of file.
 
-```
-launchctl setenv GITLAB_KEY <YOURS>
-```
-
-You can get your token under your face (top-right) / Settings / Access Tokens
+`GITLAB_PROJECT` should be the fullname (`GITLAB_USER/PROJECT_NAME`.)

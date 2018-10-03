@@ -10,10 +10,17 @@
 const https = require('https')
 const querystring = require('querystring')
 
+// you can also set this to a string
 const { GITLAB_KEY } = process.env
 
+// const GITLAB_PROJECT = 'you/project'
+
 if (!GITLAB_KEY) {
-  throw new Error('GITLAB_KEY not set in environment.')
+  throw new Error('GITLAB_KEY not set.')
+}
+
+if (!GITLAB_PROJECT) {
+  throw new Error('GITLAB_PROJECT not set.')
 }
 
 const emojis = {
@@ -25,6 +32,17 @@ const emojis = {
   'skipped': '🚀',
   'manual': '👊',
   'canceled': '✖'
+}
+
+const pad = (num, places = 2, str = '0') => num.toString().padStart(places, str)
+
+const durationToString = sec => {
+  const hours = (sec / 3600) | 0
+  const hourSec = hours * 3600
+  const minutes = ((sec - hourSec) / 60) | 0
+  const minSec = minutes * 60
+  const seconds = ((sec - hourSec - minSec)) | 0
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 }
 
 const api = (endpoint, args) => new Promise((resolve, reject) => {
@@ -50,14 +68,21 @@ const api = (endpoint, args) => new Promise((resolve, reject) => {
 })
 
 const run = async () => {
-  const projects = await api('projects', {
+  const projects = (await api('projects', {
     membership: true,
     sort: 'desc',
     order_by: 'updated_at',
-    starred: true
-  })
+    simple: true
+  })).filter(p => p.path_with_namespace === GITLAB_PROJECT)
+
+  if (!projects) {
+    console.log('no projects found')
+    return
+  }
+
   const pipelines = await Promise.all(
-    projects.map(p => api(`projects/${p.id}/pipelines`))
+    projects
+      .map(p => api(`projects/${p.id}/pipelines`))
   )
   await Promise.all(
     projects.map(async (project, p) => {
@@ -69,18 +94,11 @@ const run = async () => {
 
   const sortedprojects = projects.map(project => {
     return {
-      id: project.id,
-      name: project.name,
+      ...project,
       pipelines: project.pipelines
         .map(pipe => {
           return {
-            id: pipe.id,
-            started_at: pipe.started_at,
-            finished_at: pipe.finished_at,
-            user: pipe.user.username,
-            status: pipe.status,
-            duration: pipe.duration,
-            tag: pipe.tag,
+            ...pipe,
             icon: emojis[pipe.status] || '💀'
           }
         })
@@ -95,7 +113,10 @@ const run = async () => {
   console.log(sortedprojects.map(project => {
     const pipe = project.pipelines && project.pipelines.length && project.pipelines[project.pipelines.length - 1]
     if (pipe) {
-      return `${pipe.icon} ${project.name}`
+      return `${pipe.icon} ${project.name}
+---
+${pipe.status} on ${pipe.tag ? pipe.tag : 'master'} by ${pipe.user.username} in ${durationToString(pipe.duration)} | href="${pipe.web_url}"
+`
     }
   }).join(' · '))
 }
